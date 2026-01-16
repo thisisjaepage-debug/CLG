@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research Search</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background: #F5F1E8;
+            padding: 20px;
+            color: #1A1A1A;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #FFFFFF;
+            padding: 40px;
+            border-radius: 2px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            border-top: 4px solid #1A1A1A;
+        }
+        
+        h1 {
+            font-size: 32px;
+            color: #1A1A1A;
+            margin-bottom: 8px;
+            font-weight: 400;
+            letter-spacing: -0.5px;
+            font-family: 'Georgia', 'Times New Roman', serif;
+        }
+        
+        .subtitle {
+            color: #595959;
+            margin-bottom: 30px;
+            font-size: 16px;
+            font-style: italic;
+            font-family: 'Georgia', serif;
+        }
+        
+        .search-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        #searchInput {
+            width: 100%;
+            padding: 14px 18px;
+            font-size: 16px;
+            border: 2px solid #D4CFC0;
+            border-radius: 2px;
+            transition: border-color 0.3s;
+            font-family: 'Georgia', serif;
+            background: #FEFEFE;
+        }
+        
+        #searchInput:focus {
+            outline: none;
+            border-color: #1A1A1A;
+        }
+        
+        #searchInput::placeholder {
+            color: #595959;
+            font-style: italic;
+        }
+        
+        .suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #D4CFC0;
+            border-top: none;
+            border-radius: 0 0 2px 2px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            margin-top: -2px;
+        }
+        
+        .suggestion-item {
+            padding: 12px 18px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-size: 15px;
+            border-bottom: 1px solid #D4CFC0;
+        }
+        
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+        
+        .suggestion-item:hover {
+            background-color: #EDE9DC;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+        
+        button {
+            padding: 12px 28px;
+            font-size: 15px;
+            border: none;
+            border-radius: 2px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+            font-family: 'Georgia', serif;
+            letter-spacing: 0.3px;
+        }
+        
+        #searchBtn {
+            background: #1A1A1A;
+            color: white;
+            flex: 1;
+            text-transform: uppercase;
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+        
+        #searchBtn:hover {
+            background: #000000;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+        }
+        
+        #resetBtn {
+            background: #003057;
+            color: white;
+            text-transform: uppercase;
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+        
+        #resetBtn:hover {
+            background: #002040;
+        }
+        
+        .stats {
+            margin-bottom: 25px;
+            padding: 16px 20px;
+            background: #E8F4F8;
+            border-radius: 2px;
+            border-left: 4px solid #1A1A1A;
+        }
+        
+        .stats-text {
+            color: #1A1A1A;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .results {
+            margin-top: 25px;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 50px 20px;
+            color: #595959;
+            font-size: 17px;
+            font-style: italic;
+        }
+        
+        .scholar-card {
+            padding: 22px;
+            margin-bottom: 14px;
+            background: #FFFFFF;
+            border-radius: 2px;
+            border: 1px solid #D4CFC0;
+            border-left: 4px solid #1A1A1A;
+            transition: all 0.2s;
+        }
+        
+        .scholar-card:hover {
+            background: #EDE9DC;
+            border-left-width: 6px;
+            transform: translateX(2px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .scholar-name {
+            font-size: 19px;
+            font-weight: 700;
+            color: #003057;
+            margin-bottom: 6px;
+            letter-spacing: -0.3px;
+        }
+        
+        .scholar-university {
+            color: #595959;
+            font-size: 15px;
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+        
+        .scholar-interests {
+            color: #1A1A1A;
+            font-size: 14px;
+            line-height: 1.7;
+            margin-bottom: 8px;
+        }
+        
+        .scholar-publications {
+            margin-top: 10px;
+        }
+        
+        .publications-link {
+            color: #003057;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            border-bottom: 2px solid transparent;
+            transition: border-color 0.2s;
+        }
+        
+        .publications-link:hover {
+            border-bottom-color: #003057;
+        }
+        
+        .interest-label {
+            font-weight: 700;
+            color: #1A1A1A;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+        
+        .highlight {
+            background: #FFF3CD;
+            padding: 2px 5px;
+            border-radius: 2px;
+            font-weight: 600;
+        }
+        
+        .instruction {
+            background: #FFF4E0;
+            padding: 18px 20px;
+            border-radius: 2px;
+            margin-bottom: 25px;
+            border-left: 4px solid #8B7355;
+            font-size: 15px;
+            color: #5C4A2B;
+            line-height: 1.6;
+        }
+        
+        .instruction strong {
+            color: #3A2E1B;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+            }
+            
+            h1 {
+                font-size: 26px;
+            }
+            
+            .buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Research Search</h1>
+        <p class="subtitle">Find scholars by research interest</p>
+        
+        <div class="instruction">
+            <strong>How to use:</strong> Enter a research interest such as "policing," "climate change," or "feminist legal geography" to find matching scholars. Results will show their names and affiliation and provide a link to their publications.
+        </div>
+        
+        <div class="search-box">
+            <input 
+                type="text" 
+                id="searchInput" 
+                placeholder="Enter research interest..."
+                autocomplete="off"
+            >
+            <div id="suggestions" class="suggestions"></div>
+        </div>
+        
+        <div class="buttons">
+            <button id="searchBtn">Search</button>
+            <button id="resetBtn">Clear</button>
+        </div>
+        
+        <div id="stats" class="stats" style="display: none;">
+            <span class="stats-text" id="statsText"></span>
+        </div>
+        
+        <div id="results" class="results"></div>
+    </div>
+
+    <script>
+        const scholarData = {"scholars": [{"name": "Marco Allegra", "university": "University of Lisbon, Institute of Social Sciences", "publications": "https://scholar.google.com/citations?user=_-rsryoAAAAJ&hl=pt-PT", "interests": ["settler colonialism", "race, space, law", "urban geography", "planning law", "geopolitics", "urban social movements, housing policy"], "interests_display": "settler colonialism; race, space, law; urban geography; planning law; geopolitics; urban social movements, housing policy"}, {"name": "Chan Arun-Pina", "university": "York University", "publications": "https://www.researchgate.net/profile/Chan-Arun-Pina", "interests": ["feminist legal geography", "urban geography", "land use", "planning law", "socio-legal theory", "queer geographies", "urban rental housing"], "interests_display": "feminist legal geography; urban geography; land use; planning law; socio-legal theory; queer geographies; urban rental housing"}, {"name": "Gustav Stenseke Arup", "university": "Karlstad University, Department of Law", "publications": "https://www.researchgate.net/profile/Gustav-Stenseke-Arup", "interests": ["environmental law", "biodiversity", "socio-legal theory", "legal pluralism"], "interests_display": "environmental law; biodiversity; socio-legal theory; legal pluralism"}, {"name": "Phil Ashton", "university": "University of Illinois Chicago, Department of Urban Planning & Policy", "publications": "https://scholar.google.com/citations?user=1WgeAaUAAAAJ&hl=en", "interests": ["race, space, and law", "property law", "planning law", "socio-legal theory", "banking and credit", "administrative law and regulation", "courts and litigation"], "interests_display": "race, space, and law; property law; planning law; socio-legal theory; banking and credit; administrative law and regulation; courts and litigation"}, {"name": "Hugo Avvenire", "university": "Université de Poitiers", "publications": "https://univ-droit.fr/universitaires/52501-hugo-avvenire", "interests": ["urban geography", "environmental law", "climate change", "human rights", "accessibility", "policing"], "interests_display": "urban geography; environmental law; climate change; human rights; accessibility; policing"}, {"name": "Tugba Basaran", "university": "University of Cambridge", "publications": "https://scholar.google.com/citations?user=Nf1GmFAAAAAJ&hl=en&oi=ao", "interests": ["borders", "international law", "immigration", "socio-legal theory"], "interests_display": "borders; international law; immigration; socio-legal theory"}, {"name": "Naomi Beingessner", "university": "The James Hutton Institute,Department of Social, Economic, and Geographical Sciences", "publications": "https://www.researchgate.net/profile/Naomi-Beingessner", "interests": ["settler colonialism", "race, space, law", "property law", "land use", "socio-legal theory", "accessibility"], "interests_display": "settler colonialism; race, space, law; property law; land use; socio-legal theory; accessibility"}, {"name": "Jodie Bettis", "university": "The Open University, Department of Geography & Environmental Studies", "publications": "https://scholar.google.com/citations?user=UBKuO0sAAAAJ&hl=en&oi=ao", "interests": ["environmental law", "biodiversity", "criminal law"], "interests_display": "environmental law; biodiversity; criminal law"}, {"name": "Nicholas Blomley", "university": "Simon Fraser University", "publications": "https://scholar.google.com/citations?user=_HuuGqwAAAAJ&hl=en&oi=ao", "interests": ["property law", "urban geography", "housing policy", "illegality/informality", "land use", "planning law", "urban geography"], "interests_display": "property law; urban geography; housing policy; illegality/informality; land use; planning law; urban geography"}, {"name": "Irus Braverman", "university": "University at Buffalo, The State University of New York", "publications": "https://www.researchgate.net/profile/Irus-Braverman", "interests": ["settler-colonialism", "legal ethnography", "more-than-human geographies", "climate change", "property law"], "interests_display": "settler-colonialism; legal ethnography; more-than-human geographies; climate change; property law"}, {"name": "Giusto Amedeo Boccheni", "university": "McGill University, Faculty of Law", "publications": "https://mcgill.academia.edu/GiustoAmedeoBoccheni", "interests": ["environmental law", "international law", "natural resources", "indigenous peoples", "socio-legal theory", "legal pluralism", "water law"], "interests_display": "environmental law; international law; natural resources; Indigenous peoples; socio-legal theory; legal pluralism; water law"}, {"name": "Lee Cabatingan", "university": "University of California, Irvine (Dept. of Criminology, Law and Society)", "publications": "https://scholar.google.com/citations?user=r_i_DyEAAAAJ&hl=en&inst=315209982802967212", "interests": ["race, space, law", "legal ethnography", "geopolitics", "socio-legal theory", "postcolonial"], "interests_display": "race, space, law; legal ethnography; geopolitics; socio-legal theory; postcolonial"}, {"name": "Alida Cantor", "university": "Portland State University Department of Geography", "publications": "https://scholar.google.com/citations?user=lzRAsZ4AAAAJ&hl=en&oi=ao&inst=315209982802967212", "interests": ["settler colonialism", "more-than-human geographies", "environmental law", "land use", "sustainability", "natural resources", "indigenous peoples", "legal pluralism"], "interests_display": "settler colonialism; more-than-human geographies; environmental law; land use; sustainability; natural resources; Indigenous peoples; legal pluralism"}, {"name": "Elizabeth Carlino", "university": "Texas A&M University, Department of Geography", "publications": "https://scholar.google.com/citations?user=h-qsA5oAAAAJ&hl=en&inst=315209982802967212", "interests": ["environmental law", "climate change", "human rights", "socio-legal theory", "race, space, law", "natural resources"], "interests_display": "environmental law; climate change; human rights; socio-legal theory; race, space, law; natural resources"}, {"name": "Bastien Charaudeau Santomauro", "university": "Sciences Po Law School (Paris)", "publications": "https://papers.ssrn.com/sol3/cf_dev/AbsByAuth.cfm?per_id=2806593", "interests": ["legal ethnography", "immigration", "human rights", "socio-legal theory", "international law", "policing", "borders"], "interests_display": "legal ethnography; immigration; human rights; socio-legal theory; international law; policing; borders"}, {"name": "Francesco Chiodelli", "university": "University of Turin", "publications": "https://www.lessisless.it/", "interests": ["settler colonialism", "urban geography", "property law", "land use", "planning law", "geopolitics", "socio-legal theory", "criminal law", "illegality/informality"], "interests_display": "settler colonialism; urban geography; property law; land use; planning law; geopolitics; socio-legal theory; criminal law; illegality/informality"}, {"name": "Nupur Chowdhury", "university": "Jawaharlal Nehru University", "publications": "https://scholar.google.com/citations?hl=en&user=1eNK8C0AAAAJ&inst=315209982802967212", "interests": ["environmental law", "climate change", "biodiversity", "sustainability", "socio-legal theory", "judicial cartography"], "interests_display": "environmental law; climate change; biodiversity; sustainability; socio-legal theory; judicial cartography"}, {"name": "Tanzil Chowdhury", "university": "Queen Mary University of London", "publications": "https://www.qmul.ac.uk/law/people/academic-staff/items/chowdhury.html", "interests": ["race, space, law", "legal history", "socio-legal theory"], "interests_display": "race, space, law; legal history; socio-legal theory"}, {"name": "Thomas Coggin", "university": "University of the Witwatersrand, School of Law", "publications": "https://scholar.google.co.za/citations?user=_pwl8q0AAAAJ&hl=en&inst=315209982802967212", "interests": ["urban geography", "property law", "legal pluralism", "informality and informal work"], "interests_display": "urban geography; property law; legal pluralism; informality and informal work"}, {"name": "Dorina Damsa", "university": "Institute for Social Research, Oslo, Norway", "publications": "https://orcid.org/0000-0003-0751-7435", "interests": ["feminist legal geography", "legal ethnography", "climate change", "immigration", "land use", "biodiversity", "natural resources", "criminal law", "legal pluralism"], "interests_display": "feminist legal geography; legal ethnography; climate change; immigration; land use; biodiversity; natural resources; criminal law; legal pluralism"}, {"name": "Cristina Del Biaggio", "university": "Université Grenoble Alpes", "publications": "https://www.pacte-grenoble.fr/fr/cristina-del-biaggio", "interests": ["immigration", "human rights", "geopolitics"], "interests_display": "immigration; human rights; geopolitics"}, {"name": "Jasmin El-Shewy", "university": "University of Exeter, Law School", "publications": "", "interests": ["race, space, law", "immigration", "urban geography", "international law", "socio-legal theory"], "interests_display": "race, space, law; immigration; urban geography; international law; socio-legal theory"}, {"name": "Adele Esposito", "university": "CNRS - Géographie-Cités", "publications": "https://cv.hal.science/adele-esposito", "interests": ["urban geography", "environmental law", "land use", "property law", "planning law", "legal pluralism", "policing"], "interests_display": "urban geography; environmental law; land use; property law; planning law; legal pluralism; policing"}, {"name": "Jessica Flach", "university": "University of South Carolina", "publications": "https://sc.edu/study/colleges_schools/artsandsciences/geography/our_people/graduate_students/index.php", "interests": ["feminist legal geography", "legal history", "legal ethnography", "urban geography", "human rights", "geopolitics", "socio-legal theory", "legal pluralism", "critical geographies of education"], "interests_display": "feminist legal geography; legal history; legal ethnography; urban geography; human rights; geopolitics; socio-legal theory; legal pluralism; critical geographies of education"}, {"name": "Alexandra Flynn", "university": "University of British Columbia, Peter A. Allard School of Law", "publications": "https://scholar.google.com/citations?user=56Bf1X0AAAAJ&hl=en&inst=315209982802967212", "interests": ["human rights", "property law", "planning law", "socio-legal theory", "legal pluralism"], "interests_display": "human rights; property law; planning law; socio-legal theory; legal pluralism"}, {"name": "Josephine Gillespie", "university": "The University of Sydney, School of Geosciences", "publications": "https://scholar.google.com.au/citations?user=JPeaURMAAAAJ&hl=en&oi=ao&inst=315209982802967212", "interests": ["feminist legal geography", "environmental law", "climate change", "human rights", "biodiversity", "natural resources", "international law", "legal pluralism"], "interests_display": "feminist legal geography; environmental law; climate change; human rights; biodiversity; natural resources; international law; legal pluralism"}, {"name": "Mehrnush (Nushy) Golriz", "university": "University of California, Los Angeles", "publications": "https://www.researchgate.net/profile/Mehrnush-Golriz", "interests": ["environmental law", "sustainability", "geopolitics", "international law", "natural resources", "indigenous peoples", "legal pluralism"], "interests_display": "environmental law; sustainability; geopolitics; international law; natural resources; Indigenous peoples; legal pluralism"}, {"name": "Allegra Grillo", "university": "University of Genova, Faculty of Law", "publications": "https://scholar.google.com/citations?hl=it&user=qI3qraAAAAAJ&inst=315209982802967212", "interests": ["legal history", "human rights", "property law", "socio-legal theory", "planning law", "housing"], "interests_display": "legal history; human rights; property law; socio-legal theory; planning law; housing"}, {"name": "Katharina Grueneisl", "university": "University of Nottingham, Department of Geography", "publications": "https://scholar.google.com/scholar?hl=en&as_sdt=0%2C5&q=katharina+grueneisl&btnG=&inst=315209982802967212", "interests": ["urban geography", "race, space, law", "labour and employment", "feminist legal geography"], "interests_display": "urban geography; race, space, law; labour and employment; feminist legal geography"}, {"name": "Edward Guntrip", "university": "University of Sussex", "publications": "https://scholar.google.com/citations?user=ZDQE1rcAAAAJ&hl=en&oi=ao&inst=315209982802967212", "interests": ["human rights", "environmental law", "international law", "natural resources", "global commons", "indigenous peoples"], "interests_display": "human rights; environmental law; international law; natural resources; global commons; Indigenous peoples"}, {"name": "Pallavi Gupta", "university": "University of Hawai'i Manoa,   Dept of Geography", "publications": "https://scholar.google.com/citations?user=RiQOhaEAAAAJ&hl=en&inst=315209982802967212", "interests": ["feminist legal geography", "race, space, law", "urban geography", "geopolitics", "legal pluralism", "socio-legal theory", "labour and employment", "caste"], "interests_display": "feminist legal geography; race, space, law; urban geography; geopolitics; legal pluralism; socio-legal theory; labour and employment; caste"}, {"name": "Hanjo Hamann", "university": "EBS University of Business and Law, EBS Law School", "publications": "https://hanjo.1hamann.de/research/?en&l=engl", "interests": ["legal history", "urban geography", "property law", "socio-legal theory", "digital geographies", "race, space, law", "empirical legal studies", "legal (corpus) linguistics, law and cultural"], "interests_display": "legal history; urban geography; property law; socio-legal theory; digital geographies; race, space, law; empirical legal studies; legal (corpus) linguistics, law and cultural"}, {"name": "Brookes Hammock", "university": "Temple University", "publications": "", "interests": ["race, space, law", "legal history", "urban geography", "environmental law", "land use", "socio-legal theory", "queer geographies"], "interests_display": "race, space, law; legal history; urban geography; environmental law; land use; socio-legal theory; queer geographies"}, {"name": "Maedeh Hedayatifard", "university": "Allameh Tabataba'i University", "publications": "https://scholar.google.com/citations?user=Yz37gbYAAAAJ&hl=en&inst=315209982802967212", "interests": ["urban geography", "environmental law", "climate change", "property law", "land use", "planning law", "sustainability", "natural resources", "accessibility"], "interests_display": "urban geography; environmental law; climate change; property law; land use; planning law; sustainability; natural resources; accessibility"}, {"name": "Alanna Higgins", "university": "University of Nottingham", "publications": "https://scholar.google.com/citations?user=8rUT6PsAAAAJ&hl=en&inst=315209982802967212", "interests": ["feminist legal geography", "environmental law", "land use", "socio-legal theory", "food systems"], "interests_display": "feminist legal geography; environmental law; land use; socio-legal theory; food systems"}, {"name": "Phil Hubbard", "university": "King's College London", "publications": "https://scholar.google.com/citations?user=8q6S0JQAAAAJ&hl=en&oi=ao&inst=315209982802967212", "interests": ["more-than-human geographies", "urban geography", "property law", "land use", "planning law", "socio-legal theory", "queer geographies"], "interests_display": "more-than-human geographies; urban geography; property law; land use; planning law; socio-legal theory; queer geographies"}, {"name": "Jo Hynes", "university": "University of Exeter/ Public Law Project", "publications": "https://orcid.org/0000-0002-6967-4762", "interests": ["feminist legal geography", "legal ethnography", "immigration", "socio-legal theory"], "interests_display": "feminist legal geography; legal ethnography; immigration; socio-legal theory"}, {"name": "Malene H. Jacobsen", "university": "Newcastle University, Geography", "publications": "https://scholar.google.com/citations?user=SgVrGlgAAAAJ&hl=en&oi=ao&inst=315209982802967212", "interests": ["feminist legal geography", "race, space, law", "immigration", "human rights", "geopolitics", "socio-legal theory", "policing"], "interests_display": "feminist legal geography; race, space, law; immigration; human rights; geopolitics; socio-legal theory; policing"}, {"name": "Jenny Kanellopoulou", "university": "Manchester Law School, Manchester Metropolitan University", "publications": "https://www.mmu.ac.uk/staff/profile/dr-jenny-kanellopoulou", "interests": ["feminist legal geography", "urban geography", "intellectual property", "socio-legal theory", "queer geographies", "legal pluralism", "alternative culture and spaces"], "interests_display": "feminist legal geography; urban geography; intellectual property; socio-legal theory; queer geographies; legal pluralism; alternative culture and spaces"}, {"name": "Hannah Kass", "university": "University of Wisconsin-Madison", "publications": "https://www.researchgate.net/profile/Hannah-Kass-4", "interests": ["legal history", "legal ethnography", "human rights", "land use", "socio-legal theory", "criminal law", "policing", "feminist legal geography", "race, space, law"], "interests_display": "legal history; legal ethnography; human rights; land use; socio-legal theory; criminal law; policing; feminist legal geography; race, space, law"}, {"name": "Alexandre (Sandy) Kedar", "university": "University of Haifa, Law School, Israel", "publications": "https://scholar.google.com/citations?user=WoiYE38AAAAJ&hl=en&oi=ao&inst=315209982802967212", "interests": ["settler colonialism", "indigenous peoples", "israel-palestine", "land regimes", "opt"], "interests_display": "settler colonialism; Indigenous Peoples; Israel-Palestine; land regimes; OPT"}, {"name": "Sarah Kelly", "university": "Dartmouth College, Department of Geography and Energy Justice Clinic", "publications": "https://scholar.google.com/citations?hl=en&user=9TarklsAAAAJ&inst=315209982802967212", "interests": ["settler colonialism", "environmental law", "indigenous peoples", "legal pluralism"], "interests_display": "settler colonialism; environmental law; Indigenous peoples; legal pluralism"}, {"name": "Sarah Klosterkamp", "university": "Goethe University Frankfurt,   Human Geography", "publications": "https://www.researchgate.net/profile/Sarah-Klosterkamp", "interests": ["feminist legal geography", "legal ethnography", "urban geography", "geopolitics", "race, space, law", "criminal law", "property"], "interests_display": "feminist legal geography; legal ethnography; urban geography; geopolitics; race, space, law; criminal law; property"}, {"name": "Austin Kocher", "university": "Syracuse University", "publications": "https://scholar.google.com/citations?user=5JIggRsAAAAJ&hl=en&inst=315209982802967212", "interests": ["race, space, and law", "legal history", "legal ethnography", "immigration", "human rights", "geopolitics", "socio-legal theory", "criminal law", "policing"], "interests_display": "race, space, and law; legal history; legal ethnography; immigration; human rights; geopolitics; socio-legal theory; criminal law; policing"}, {"name": "Lucas Konzen", "university": "Universidade Federal do Rio Grande do Sul (UFRGS)", "publications": "https://scholar.google.com.br/citations?user=HaVgk2kAAAAJ&hl=&inst=315209982802967212", "interests": ["urban geography", "climate change", "environmental law", "human rights", "property law", "land use", "planning law", "socio-legal theory", "policing", "legal pluralism"], "interests_display": "urban geography; climate change; environmental law; human rights; property law; land use; planning law; socio-legal theory; policing; legal pluralism"}, {"name": "Shailesh Kumar", "university": "University of East London, Department of Law, Justice and Policing", "publications": "https://scholar.google.co.uk/citations?hl=en&user=ZCu9ntcAAAAJ&view_op=list_works&inst=315209982802967212", "interests": ["feminist legal geography", "race, space, and law", "legal history", "legal ethnography", "human rights", "socio-legal theory", "criminal law", "policing", "legal pluralism"], "interests_display": "feminist legal geography; race, space, and law; legal history; legal ethnography; human rights; socio-legal theory; criminal law; policing; legal pluralism"}, {"name": "Päivi Kymäläinen", "university": "Tampere University", "publications": "https://www.researchgate.net/profile/Paeivi-Kymaelaeinen?ev=prf_overview", "interests": ["legal ethnography", "urban geography", "property law", "planning law", "socio-legal theory", "policing", "legal pluralism"], "interests_display": "legal ethnography; urban geography; property law; planning law; socio-legal theory; policing; legal pluralism"}, {"name": "Kay Lalor", "university": "Manchester Law School, Manchester Metropolitan University", "publications": "https://scholar.google.com/citations?user=zIisG28AAAAJ&hl=en&inst=315209982802967212", "interests": ["feminist legal geography", "race, space, and law", "immigration", "human rights", "international law", "socio-legal theory", "queer geographies"], "interests_display": "feminist legal geography; race, space, and law; immigration; human rights; international law; socio-legal theory; queer geographies"}, {"name": "Solene Le Bihan", "university": "EHESS, Géographie Cités", "publications": "https://geographie-cites.cnrs.fr/membres/solene-le-bihan/", "interests": ["urban geography", "race, space, law", "accessibility"], "interests_display": "urban geography; race, space, law; accessibility"}, {"name": "Tzu-I Lee", "university": "National Taiwan University of Science and Technology", "publications": "https://www.researchgate.net/profile/Tzu-I-Lee", "interests": ["intellectual property", "geopolitics", "international law", "socio-legal theory"], "interests_display": "intellectual property; geopolitics; international law; socio-legal theory"}, {"name": "Isabella Leroy", "university": "Vrije Universiteit Amsterdam", "publications": "", "interests": ["race, space, law", "immigration", "human rights", "policing"], "interests_display": "race, space, law; immigration; human rights; policing"}, {"name": "Gail Lythgoe", "university": "University of Edinburgh, School of Law", "publications": "https://papers.ssrn.com/sol3/cf_dev/AbsByAuth.cfm?per_id=4919362", "interests": ["settler colonialism", "feminist legal geography", "race, space, law", "legal history", "legal ethnography", "environmental law", "climate change", "human rights", "property law", "land use", "geopolitics", "international law", "natural resources", "socio-legal theory", "queer geographies", "legal pluralism", "indigenous peoples", "digital geographies", "philosophy", "legal theory"], "interests_display": "settler colonialism; feminist legal geography; race, space, law; legal history; legal ethnography; environmental law; climate change; human rights; property law; land use; geopolitics; international law; natural resources; socio-legal theory; queer geographies; legal pluralism; Indigenous peoples; digital geographies; philosophy; legal theory"}, {"name": "Syeda Z. Mahmood", "university": "University of California, Irvine", "publications": "", "interests": ["legal ethnography", "urban geography", "environmental law", "climate change", "property law", "land use", "international law", "natural resources", "socio-legal theory", "indigenous peoples", "legal ecologies"], "interests_display": "legal ethnography; urban geography; environmental law; climate change; property law; land use; international law; natural resources; socio-legal theory; Indigenous peoples; legal ecologies"}, {"name": "Giulia Massenz", "university": "Polytechnic of Turin", "publications": "https://www.polito.it/personale?p=giulia.massenz", "interests": ["legal ethnography", "human rights", "urban geography", "immigration", "planning law"], "interests_display": "legal ethnography; human rights; urban geography; immigration; planning law"}, {"name": "Svenja McGrath", "university": "University of Hamburg", "publications": "", "interests": ["climate change", "geopolitics", "international law", "natural resources"], "interests_display": "climate change; geopolitics; international law; natural resources"}, {"name": "Elya Milner", "university": "Technische Universität Berlin, Center for Metropolitan Studies", "publications": "https://www.tu.berlin/cms/ueber-uns/team/milner-elya", "interests": ["settler colonialism", "urban geography", "property law", "land use", "planning law", "urban planning"], "interests_display": "settler colonialism; urban geography; property law; land use; planning law; urban planning"}, {"name": "Almita A. Miranda", "university": "University of Wisconsin-Madison", "publications": "https://geography.wisc.edu/staff/miranda-almita-a/", "interests": ["legal and feminist geographies", "race/ethnicity", "gender/kinship", "neoliberalism", "(im)migration", "legality", "citizenship", "transnationalism", "borders/boundaries", "social movements", "mixed-status families", "latinx ethnography and life histories", "u.s midwest, mexico"], "interests_display": "legal and feminist geographies; race/ethnicity; gender/kinship; neoliberalism; (im)migration; legality; citizenship; transnationalism; borders/boundaries; social movements; mixed-status families; Latinx ethnography and life histories; U.S Midwest, Mexico"}, {"name": "Emily Mitchell-Eaton", "university": "Colgate University", "publications": "https://colgate.academia.edu/EmilyMitchellEaton", "interests": ["settler colonialism", "race, space, and law", "immigration", "indigenous peoples", "legalgeographies of colonialism and imperialism"], "interests_display": "settler colonialism; race, space, and law; immigration; Indigenous peoples; legalgeographies of colonialism and imperialism"}, {"name": "Christopher Morris", "university": "Manchester Law School at Manchester Metropolitan University", "publications": "https://www.mmu.ac.uk/staff/profile/christopher-morris", "interests": ["urban geography", "property law", "socio-legal theory", "policing", "immigration", "land use", "planning law"], "interests_display": "urban geography; property law; socio-legal theory; policing; immigration; land use; planning law"}, {"name": "Katrin Mueller", "university": "Leuphana University Lueneburg", "publications": "https://www.leuphana.de/institute/lls/promotion/joachim-herz-promotionskolleg-fuer-rechtswissenschaft/das-joachim-herz-promotionskolleg-fuer-rechtswissenschaft/fellows/katrin-mueller.html", "interests": ["socio-legal theory", "legal pluralism", "property law", "legal history"], "interests_display": "socio-legal theory; legal pluralism; property law; legal history"}, {"name": "Dhiraj Nainani", "university": "Asia Research Institute, National University of Singapore", "publications": "https://ari.nus.edu.sg/people/nainani-dhiraj/", "interests": ["race, space, law", "legal history", "legal ethnography", "urban geography", "socio-legal theory", "criminal law", "international law", "climate change"], "interests_display": "race, space, law; legal history; legal ethnography; urban geography; socio-legal theory; criminal law; international law; climate change"}, {"name": "Prateek Negi", "university": "Pestle Weed College of Information Technology, Faculty of Geography", "publications": "https://orcid.org/0000-0002-4061-837X?lang=en", "interests": ["urban geography", "intellectual property", "land use", "planning law", "labour and employment"], "interests_display": "urban geography; intellectual property; land use; planning law; labour and employment"}, {"name": "Matteo Nicolini", "university": "University of Verona, Department of Law", "publications": "https://scholar.google.com/citations?user=ZES_U5cAAAAJ&hl=it&inst=315209982802967212", "interests": ["settler colonialism", "legal history", "climate change", "geopolitics", "socio-legal theory", "legal pluralism"], "interests_display": "settler colonialism; legal history; climate change; geopolitics; socio-legal theory; legal pluralism"}, {"name": "Elsa Noterman", "university": "Queen Mary University of London", "publications": "https://scholar.google.com/citations?user=3DV3QnkAAAAJ&hl=en&oi=ao&inst=315209982802967212", "interests": ["settler colonialism", "race, space, law", "urban geography", "property law", "land use"], "interests_display": "settler colonialism; race, space, law; urban geography; property law; land use"}, {"name": "Mara Ntona", "university": "University of Strathclyde Law School", "publications": "https://pureportal.strath.ac.uk/en/persons/maria-ntona/", "interests": ["environmental law", "climate change", "human rights", "land use", "biodiversity", "planning law", "sustainability", "international law", "natural resources", "socio-legal theory", "legal pluralism", "digital geographies"], "interests_display": "environmental law; climate change; human rights; land use; biodiversity; planning law; sustainability; international law; natural resources; socio-legal theory; legal pluralism; digital geographies"}, {"name": "Berfin Nur Osso", "university": "University of Helsinki, Faculty of Law", "publications": "https://researchportal.helsinki.fi/en/persons/berfin-nur-osso/", "interests": ["urban geography", "human rights", "property law", "land use", "socio-legal theory", "digital geographies"], "interests_display": "urban geography; human rights; property law; land use; socio-legal theory; digital geographies"}, {"name": "Smith Ouma", "university": "University of Manchester", "publications": "https://research.manchester.ac.uk/en/persons/smith.ouma", "interests": ["urban geography", "human rights", "property law", "land use", "socio-legal theory", "digital geographies"], "interests_display": "urban geography; human rights; property law; land use; socio-legal theory; digital geographies"}, {"name": "Jae Page", "university": "University of Toronto, Department of Geography, Geomatics and Environment", "publications": "https://scholar.google.ca/citations?user=cYW0IPkAAAAJ&hl=en&inst=315209982802967212&oi=ao", "interests": ["settler colonialism", "race, space, and law", "legal history", "property law", "planning law", "gis - critical cartography", "digital geographies"], "interests_display": "settler colonialism; race, space, and law; legal history; property law; planning Law; GIS - critical cartography; digital geographies"}, {"name": "Rachael Parker Allen", "university": "University of Cambridge", "publications": "https://www.geog.cam.ac.uk/people/parker-allen/", "interests": ["feminist legal geography", "legal ethnography", "environmental law", "climate change", "human rights", "geopolitics", "international law", "indigenous peoples", "legal pluralism"], "interests_display": "feminist legal geography; legal ethnography; environmental law; climate change; human rights; geopolitics; international law; Indigenous peoples; legal pluralism"}, {"name": "Andrea Pavoni", "university": "University Institute of Lisbon [ISCTE], DINAMIA'CET", "publications": "https://www.researchgate.net/profile/Andrea-Pavoni", "interests": ["race, space, law", "legal ethnography", "urban geography", "planning law", "geopolitics", "socio-legal theory", "criminal law", "queer geographies", "policing", "digital geographies"], "interests_display": "race, space, law; legal ethnography; urban geography; planning law; geopolitics; socio-legal theory; criminal law; queer geographies; policing; digital geographies"}, {"name": "Pablo Peña", "university": "University of Oxford", "publications": "https://scholar.google.com/citations?user=mH8e_ZsAAAAJ&hl=en&inst=315209982802967212", "interests": ["environmental law", "climate change", "property law", "land use", "biodiversity", "sustainability", "natural resources"], "interests_display": "environmental law; climate change; property law; land use; biodiversity; sustainability; natural resources"}, {"name": "Voltaire Alvarado Peterson", "university": "Universidad de Concepción, Departamento de Geografía", "publications": "https://www.researchgate.net/profile/Voltaire-Alvarado-Peterson", "interests": ["legal history", "property law", "land use", "geopolitics", "neoliberal state"], "interests_display": "legal history; property law; land use; geopolitics; neoliberal state"}, {"name": "Giacomo Pettenati", "university": "University of Eastern Piedmont, Department of Economics and Business Studies", "publications": "https://unipmn.academia.edu/GiacomoPettenati", "interests": ["natural resources", "sustainability", "land use", "biodiversity", "food geographies"], "interests_display": "natural resources; sustainability; land use; biodiversity; food geographies"}, {"name": "Marco Picone", "university": "University of Palermo, Department of Architecture", "publications": "https://www.researchgate.net/profile/Marco-Picone-4", "interests": ["urban geography", "immigration", "geopolitics", "international law"], "interests_display": "urban geography; immigration; geopolitics; international law"}, {"name": "Judith Maria Poersch", "university": "University of Mainz, Institute of Geography", "publications": "https://www.blogs.uni-mainz.de/fb09humangeography/judith-maria-poersch/", "interests": ["natural resources", "geopolitics"], "interests_display": "natural resources; geopolitics"}, {"name": "Emma Pratchett", "university": "Northumbria University", "publications": "https://kcl.academia.edu/EmmaPatchett", "interests": ["feminist legal geography", "settler colonialism", "race, space, law", "urban geography", "immigration", "human rights", "socio-legal theory", "criminal law", "policing"], "interests_display": "feminist legal geography; settler colonialism; race, space, law; urban geography; immigration; human rights; socio-legal theory; criminal law; policing"}, {"name": "Kirishanthan Punniyarajah", "university": "University of St Andrews, School of Geography and Sustainable Development, UK", "publications": "https://research-portal.st-andrews.ac.uk/en/persons/kirishanthan-punniyarajah/", "interests": ["legal ethnography", "environmental law", "climate change", "natural resources", "socio-legal theory", "indigenous peoples", "legal pluralism", "environmental legal geography"], "interests_display": "legal ethnography; environmental law; climate change; natural resources; socio-legal theory; Indigenous peoples; legal pluralism; Environmental Legal Geography"}, {"name": "Benjamin Ralston", "university": "University of Saskatchewan, College of Law", "publications": "https://www.researchgate.net/profile/Benjamin-Ralston", "interests": ["settler colonialism", "race, space, law", "legal history", "environmental law", "climate change", "human rights", "property law", "land use", "biodiversity", "planning"], "interests_display": "settler colonialism; race, space, law; legal history; environmental law; climate change; human rights; property law; land use; biodiversity; planning"}, {"name": "Sara Ross", "university": "Dalhousie University, Schulich School or Law", "publications": "https://papers.ssrn.com/sol3/cf_dev/AbsByAuth.cfm?per_id=2250016", "interests": ["feminist legal geography", "legal ethnography", "urban geography", "human rights", "property law", "land use", "planning law", "international law", "socio-legal theory", "legal pluralism", "cultural heritage law"], "interests_display": "feminist legal geography; legal ethnography; urban geography; human rights; property law; land use; planning law; international law; socio-legal theory; legal pluralism; cultural heritage law"}, {"name": "Shaina Sadai", "university": "Union of Concerned Scientists", "publications": "https://orcid.org/0000-0002-6723-6531", "interests": ["environmental law", "climate change", "human rights", "biodiversity", "international law", "multispecies entanglements", "policing"], "interests_display": "environmental law; climate change; human rights; biodiversity; international law; multispecies entanglements; policing"}, {"name": "Rishika Sahgal", "university": "University of Birmingham, Birmingham Law School", "publications": "https://scholar.google.com/citations?view_op=list_works&hl=en&hl=en&user=ac4OfTcAAAAJ&inst=315209982802967212", "interests": ["urban geography", "human rights", "race, space, law"], "interests_display": "urban geography; human rights; race, space, law"}, {"name": "Angela Sánchez", "university": "Freie University Berlin, INTERACT", "publications": "https://www.interact.fu-berlin.de/en/Team/Nachwuchsgruppen/Angela-Maria-Sanchez-Alfonso/index.html", "interests": ["legal ethnography", "environmental law", "property law", "land use", "race, space, law"], "interests_display": "legal ethnography; environmental law; property law; land use; race, space, law"}, {"name": "Emmanuelle Santoire", "university": "University of Rennes, CNRS UMR 6262 IODE, France", "publications": "https://www.researchgate.net/profile/Emmanuelle-Santoire", "interests": ["environmental law", "climate change", "property law", "land use", "planning law", "sustainability", "geopolitics", "international law", "natural resources", "socio-legal theory", "policing", "energy law"], "interests_display": "environmental law; climate change; property law; land use; planning law; sustainability; geopolitics; international law; natural resources; socio-legal theory; policing; energy law"}, {"name": "Lorenzo Serafinelli", "university": "Sapienza University of Rome; von Humboldt University of Berlin", "publications": "https://uniroma1.academia.edu/Lserafinelli", "interests": ["race, space, and law", "legal history", "legal ethnography", "climate change", "socio-legal theory", "policing", "legal pluralism"], "interests_display": "race, space, and law; legal history; legal ethnography; climate change; socio-legal theory; policing; legal pluralism"}, {"name": "Julia Sizek", "university": "University of California, Berkeley", "publications": "https://scholar.google.com/citations?user=H4A6Sk0AAAAJ&hl=en&inst=315209982802967212", "interests": ["race, space, and law", "legal history", "legal ethnography", "environmental law", "climate change", "property law", "land use", "planning law", "natural resources", "indigenous peoples"], "interests_display": "race, space, and law; legal history; legal ethnography; environmental law; climate change; property law; land use; planning law; natural resources; Indigenous peoples"}, {"name": "Angela Smith", "university": "University of New South Wales (UNSW)", "publications": "https://scholar.google.com.au/citations?hl=en&user=xiRzqSAAAAAJ&view_op=list_works&sortby=pubdate&inst=315209982802967212", "interests": ["settler colonialism", "race, space, law", "legal history", "immigration", "geopolitics", "international law", "socio-legal theory"], "interests_display": "settler colonialism; race, space, law; legal history; immigration; geopolitics; international law; socio-legal theory"}, {"name": "Liesel Spencer", "university": "University of Western Sydney, School of Law", "publications": "https://scholar.google.com/citations?user=v87hQpIAAAAJ&inst=315209982802967212", "interests": ["feminist legal geography", "race, space, and law", "legal history", "urban geography", "land use", "planning law", "sustainability", "socio-legal theory", "comparative law and legal geography"], "interests_display": "feminist legal geography; race, space, and law; legal history; urban geography; land use; planning law; sustainability; socio-legal theory; comparative law and legal geography"}, {"name": "Julie Urbanik", "university": "Geonarrative Services, LLC", "publications": "https://scholar.google.com/citations?user=9WbLidYAAAAJ&hl=en&inst=315209982802967212", "interests": ["feminist legal geography", "race, space, and law", "more-than-human geographies", "criminal law", "criminal mitigation"], "interests_display": "feminist legal geography; race, space, and law; more-than-human geographies; criminal law; criminal mitigation"}, {"name": "Lokesh Vyas", "university": "SciencesPo", "publications": "", "interests": ["legal history", "accessibility", "international law", "race, space, law", "settler colonialism", "legal theory", "twail", "semiotics"], "interests_display": "legal history; accessibility; international law; race, space, law; settler colonialism; legal theory; TWAIL; semiotics"}, {"name": "Brittany Lauren Wheeler", "university": "Auburn University", "publications": "https://scholar.google.com/citations?user=sFdgjFIAAAAJ&hl=en&oi=ao&inst=315209982802967212", "interests": ["legal history", "legal ethnography", "environmental law", "climate change", "immigration", "geopolitics"], "interests_display": "legal history; legal ethnography; environmental law; climate change; immigration; geopolitics"}, {"name": "Trevor Wideman", "university": "Vancouver Island University, Faculty of Education", "publications": "https://scholar.google.ca/citations?user=rhDCz80AAAAJ&hl=en&inst=315209982802967212", "interests": ["urban geography", "property law", "land use", "planning law", "socio-legal theory"], "interests_display": "urban geography; property law; land use; planning law; socio-legal theory"}, {"name": "Oren Yiftachel", "university": "Ben-Gurion University of the Negev", "publications": "https://scholar.google.com/citations?user=2_N50mIAAAAJ&hl=en&oi=ao&inst=315209982802967212", "interests": ["settler colonialism", "planning law", "urban geography", "land use"], "interests_display": "settler colonialism; planning law; urban geography; land use"}, {"name": "Maurice Yip", "university": "University of Lausanne, Institute of Geography and Sustainability", "publications": "https://orcid.org/0000-0003-0435-9849", "interests": ["urban geography", "property law", "land use", "planning law", "geopolitics"], "interests_display": "urban geography; property law; land use; planning law; geopolitics"}, {"name": "Kenny (Kunihiko) Yoshida", "university": "Guangdong University of Foreign Studies, School of Law", "publications": "https://www.researchgate.net/profile/Kunihiko-Yoshida", "interests": ["settler colonialism", "environmental law", "urban geography", "race, space, law", "climate change", "immigration", "human rights", "property law", "geopolitics", "international law", "indigenous peoples", "queer geographies"], "interests_display": "settler colonialism; environmental law; urban geography; race, space, law; climate change; immigration; human rights; property law; geopolitics; international law; Indigenous peoples; queer geographies"}, {"name": "Guanchi Zhang", "university": "Vermont Law and Graduate School", "publications": "https://scholar.google.com/citations?user=_KCCy7EAAAAJ&hl=en&inst=315209982802967212", "interests": ["urban geography", "property law", "land use", "planning law"], "interests_display": "urban geography; property law; land use; planning law"}], "all_interests": ["philosophy", "legal pluralism", "legal and feminist geographies", "planning", "feminist legal geography", "land use", "energy law", "queer geographies", "planning law", "human rights", "mixed-status families", "legalgeographies of colonialism and imperialism", "courts and litigation", "land regimes", "environmental law", "transnationalism", "accessibility", "food geographies", "legal ecologies", "citizenship", "indigenous peoples", "food systems", "u.s midwest, mexico", "critical geographies of education", "global commons", "urban planning", "illegality/informality", "urban rental housing", "property law", "postcolonial", "immigration", "legality", "legal ethnography", "semiotics", "urban geography", "water law", "race, space, law", "borders", "environmental legal geography", "intellectual property", "twail", "settler-colonialism", "borders/boundaries", "gis - critical cartography", "comparative law and legal geography", "natural resources", "criminal law", "property", "geopolitics", "israel-palestine", "latinx ethnography and life histories", "climate change", "more-than-human geographies", "administrative law and regulation", "(im)migration", "informality and informal work", "caste", "race/ethnicity", "housing", "settler colonialism", "socio-legal theory", "neoliberalism", "gender/kinship", "international law", "legal history", "cultural heritage law", "race, space, and law", "banking and credit", "urban social movements, housing policy", "empirical legal studies", "labour and employment", "legal theory", "digital geographies", "judicial cartography", "legal (corpus) linguistics, law and cultural", "criminal mitigation", "policing", "multispecies entanglements", "social movements", "biodiversity", "sustainability", "neoliberal state", "opt", "housing policy", "alternative culture and spaces"], "autocomplete_interests": ["(im)migration", "accessibility", "administrative law and regulation", "alternative culture and spaces", "banking and credit", "biodiversity", "borders", "caste", "citizenship", "climate change", "comparative law and legal geography", "courts and litigation", "criminal law", "criminal mitigation", "critical geographies of education", "cultural heritage law", "digital geographies", "empirical legal studies", "energy law", "environmental law", "environmental legal geography", "feminist legal geography", "food geographies", "food systems", "gender/kinship", "geopolitics", "gis - critical cartography", "global commons", "housing", "human rights", "illegality/informality", "immigration", "indigenous peoples", "informality and informal work", "intellectual property", "international law", "israel-palestine", "judicial cartography", "labour and employment", "land regimes", "land use", "latinx ethnography and life histories", "legal (corpus) linguistics, law and cultural", "legal ecologies", "legal ethnography", "legal history", "legal pluralism", "legalgeographies of colonialism and imperialism", "legality", "mixed-status families", "more-than-human geographies", "multispecies entanglements", "natural resources", "neoliberalism", "opt", "philosophy", "planning", "policing", "postcolonial", "property", "queer geographies", "race, space, and law", "race/ethnicity", "semiotics", "settler colonialism", "settler-colonialism", "social movements", "socio-legal theory", "sustainability", "transnationalism", "twail", "u.s midwest, mexico", "urban geography", "water law"]};
+        
+        const scholars = scholarData.scholars;
+        const allInterests = scholarData.all_interests;
+        const autocompleteInterests = scholarData.autocomplete_interests;
+        
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const results = document.getElementById('results');
+        const stats = document.getElementById('stats');
+        const statsText = document.getElementById('statsText');
+        const suggestionsDiv = document.getElementById('suggestions');
+        
+        // Special search terms that show all scholars
+        const showAllTerms = ['justice'];
+        
+        // Autocomplete functionality
+        searchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase().trim();
+            suggestionsDiv.innerHTML = '';
+            
+            if (query.length === 0) {
+                suggestionsDiv.style.display = 'none';
+                return;
+            }
+            
+            const matches = autocompleteInterests.filter(interest => 
+                interest.includes(query)
+            ).slice(0, 8);
+            
+            if (matches.length > 0) {
+                matches.forEach(interest => {
+                    const div = document.createElement('div');
+                    div.className = 'suggestion-item';
+                    div.textContent = interest;
+                    div.addEventListener('click', function() {
+                        searchInput.value = interest;
+                        suggestionsDiv.style.display = 'none';
+                        performSearch();
+                    });
+                    suggestionsDiv.appendChild(div);
+                });
+                suggestionsDiv.style.display = 'block';
+            } else {
+                suggestionsDiv.style.display = 'none';
+            }
+        });
+        
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!searchInput.contains(e.target) && !suggestionsDiv.contains(e.target)) {
+                suggestionsDiv.style.display = 'none';
+            }
+        });
+        
+        // Search on Enter key
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                suggestionsDiv.style.display = 'none';
+                performSearch();
+            }
+        });
+        
+        // Search button click
+        searchBtn.addEventListener('click', performSearch);
+        
+        // Reset button click
+        resetBtn.addEventListener('click', function() {
+            searchInput.value = '';
+            results.innerHTML = '';
+            stats.style.display = 'none';
+            suggestionsDiv.style.display = 'none';
+        });
+        
+        function performSearch() {
+            const query = searchInput.value.toLowerCase().trim();
+            
+            if (query === '') {
+                results.innerHTML = '<div class="no-results">Please enter a research interest to begin your search.</div>';
+                stats.style.display = 'none';
+                return;
+            }
+            
+            // Check if query is a special "show all" term
+            let matches;
+            if (showAllTerms.includes(query)) {
+                // Show all scholars for special terms like "justice"
+                matches = scholars;
+            } else {
+                // Normal search - find matching scholars
+                matches = scholars.filter(scholar => 
+                    scholar.interests.some(interest => 
+                        interest.includes(query)
+                    )
+                );
+            }
+            
+            // Display results
+            if (matches.length === 0) {
+                results.innerHTML = '<div class="no-results">No scholars found for "' + escapeHtml(query) + '". Please try another research interest.</div>';
+                stats.style.display = 'none';
+            } else {
+                // Show stats
+                stats.style.display = 'block';
+                statsText.textContent = matches.length + ' scholar' + (matches.length === 1 ? '' : 's') + ' found for "' + query + '"';
+                
+                // Display scholar cards
+                results.innerHTML = matches.map(scholar => {
+                    const pubLink = scholar.publications ? 
+                        `<div class="scholar-publications">
+                            <a href="${escapeHtml(scholar.publications)}" target="_blank" rel="noopener noreferrer" class="publications-link">
+                                View Publications →
+                            </a>
+                        </div>` : '';
+                    
+                    return `
+                        <div class="scholar-card">
+                            <div class="scholar-name">${escapeHtml(scholar.name)}</div>
+                            <div class="scholar-university">${escapeHtml(scholar.university)}</div>
+                            <div class="scholar-interests">
+                                <span class="interest-label">Research Interests:</span> ${highlightMatch(scholar.interests_display, query, showAllTerms.includes(query))}
+                            </div>
+                            ${pubLink}
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function highlightMatch(text, query, skipHighlight) {
+            const escaped = escapeHtml(text);
+            // Don't highlight if it's a special "show all" term
+            if (skipHighlight) {
+                return escaped;
+            }
+            const regex = new RegExp('(' + escapeRegex(query) + ')', 'gi');
+            return escaped.replace(regex, '<span class="highlight">$1</span>');
+        }
+        
+        function escapeRegex(string) {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+    </script>
+</body>
+</html>
